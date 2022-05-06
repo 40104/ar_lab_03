@@ -98,15 +98,39 @@ public:
         if (form.has("login"))
         {
             std::string login = form.get("login");
+            bool no_cache = false;
+            if (form.has("no_cache"))
+                no_cache = true;
+            // read from cache
+            if (!no_cache)
+            {
+                try
+                {
+                    database::Person result = database::Person::read_from_cache_by_login(login);
+                    std::cout << "item from cache:" << login << std::endl;
+                    Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
+                    return;
+                }
+                catch (...)
+                {
+                    std::cout << "cache missed for login:" << login << std::endl;
+                }
+            }
+
             try
             {
+                // Шаблон «сквозное чтение»
+                // если записи нет в кеше - ситаем из БД
+                // и записываем в кеш
                 database::Person result = database::Person::read_by_login(login);
+                if (!no_cache)
+                    result.save_to_cache();
                 Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
                 return;
             }
-            catch (...)
+            catch (std::exception &ex)
             {
-                ostr << "{ \"result\": false , \"reason\": \"not found\" }";
+                ostr << "{ \"result\": false , \"reason\": \"" << ex.what() << "\" }";
                 return;
             }
         }
@@ -172,7 +196,10 @@ public:
                                 try
                                 {
                                     person.save_to_mysql();
-                                    ostr << "{ \"result\": true }";
+                                    person.save_to_cache();
+                                    ostr << "{ \"result\": \"";
+                                    ostr << person.login();
+                                    ostr << "\"}";
                                     return;
                                 }
                                 catch (...)

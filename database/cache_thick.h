@@ -12,15 +12,15 @@ namespace database
     {
         private:
             ignite::Ignite &_client;
-            ignite::cache::Cache<long, std::string> _cache;
+            ignite::cache::Cache<std::string, std::string> _cache;
             CacheThick(ignite::Ignite &client);
 
         public:
             static CacheThick get();
-            void put(long id, const std::string& val);
-            bool get(long id, std::string& val);
+            void put(std::string login, const std::string& val);
+            bool get(std::string login, std::string& val);
             size_t size();
-            void remove(long id);
+            void remove(std::string login);
             void remove_all();
             ~CacheThick();
     };

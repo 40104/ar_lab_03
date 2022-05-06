@@ -9,7 +9,7 @@
 
 namespace database
 {
-    CacheThick::CacheThick(ignite::Ignite &client) : _client(client),_cache(_client.GetCache<long, std::string>("authors"))
+    CacheThick::CacheThick(ignite::Ignite &client) : _client(client),_cache(_client.GetCache<std::string, std::string>("persons"))
     {
 
     }
@@ -24,13 +24,13 @@ namespace database
         return instance;
     }
 
-    void CacheThick::put(long id, const std::string& val){
-        _cache.Put(id,val);
+    void CacheThick::put(std::string login, const std::string& val){
+        _cache.Put(login,val);
         
     } 
 
-    void CacheThick::remove(long id){
-        _cache.Remove(id);
+    void CacheThick::remove(std::string login){
+        _cache.Remove(login);
     }
 
     size_t CacheThick::size(){
@@ -41,9 +41,9 @@ namespace database
         _cache.RemoveAll();;
     }
 
-    bool CacheThick::get(long id, std::string& val){
+    bool CacheThick::get(std::string login, std::string& val){
         try{
-            val = _cache.Get(id);
+            val = _cache.Get(login);
             return true;
         }catch(...){
             throw std::logic_error("key not found in cache");

@@ -12,10 +12,10 @@ namespace database
 
         public:
             static Cache get();
-            void put(long id, const std::string& val);
-            bool get(long id, std::string& val);
+            void put(std::string login, const std::string& val);
+            bool get(std::string login, std::string& val);
             size_t size();
-            void remove(long id);
+            void remove(std::string login);
             void remove_all();
     };
 }

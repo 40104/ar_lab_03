@@ -8,7 +8,7 @@
 #include <exception>
 
 static ignite::thin::IgniteClient _client;
-static ignite::thin::cache::CacheClient<long, std::string> _cache;
+static ignite::thin::cache::CacheClient<std::string, std::string> _cache;
 
 namespace database
 {
@@ -20,7 +20,7 @@ namespace database
         try
         {
             _client = ignite::thin::IgniteClient::Start(cfg);
-            _cache = _client.GetOrCreateCache<long, std::string>("authors");
+            _cache = _client.GetOrCreateCache<std::string, std::string>("persons");
         }
         catch (ignite::IgniteError* err)
         {
@@ -35,12 +35,12 @@ namespace database
         return instance;
     }
 
-    void Cache::put(long id, const std::string& val){
-        _cache.Put(id,val);
+    void Cache::put(std::string login, const std::string& val){
+        _cache.Put(login,val);
     } 
 
-    void Cache::remove(long id){
-        _cache.Remove(id);
+    void Cache::remove(std::string login){
+        _cache.Remove(login);
     }
 
     size_t Cache::size(){
@@ -51,9 +51,9 @@ namespace database
         _cache.RemoveAll();;
     }
 
-    bool Cache::get(long id, std::string& val){
+    bool Cache::get(std::string login, std::string& val){
         try{
-            val = _cache.Get(id);
+            val = _cache.Get(login);
             return true;
         }catch(...){
             throw std::logic_error("key not found in cache");
